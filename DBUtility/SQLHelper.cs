@@ -12,13 +12,8 @@
  * Copyright @ Njbosa 2018. All rights reserved.
 ************************************************************************/
 
-using System;
-using System.Collections.Generic;
 using System.Data.Common;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DBUtility
 {
@@ -27,9 +22,9 @@ namespace DBUtility
         public SQLHelper(string connStr)
             : base(connStr)
         { }
-        SqlConnection _DBConnectionObj;
-        SqlCommand _DbCommandObj;
-        SqlDataAdapter _DbDataAdapterObj;
+        private SqlConnection _DBConnectionObj;
+        private SqlCommand _DbCommandObj;
+        private SqlDataAdapter _DbDataAdapterObj;
 
         protected override DbConnection DBConnectionObj
         {

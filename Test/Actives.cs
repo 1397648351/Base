@@ -20,6 +20,8 @@ using System.Threading.Tasks;
 using ORMAttributes;
 using System.Reflection;
 using Models;
+using DBUtility;
+using System.Data;
 
 namespace Test
 {
@@ -32,6 +34,20 @@ namespace Test
             {
                 string name = ORMAttributes.AttributeProcess.GetColumnName(property);
                 Console.WriteLine(property.Name + ": " + name);
+            }
+        }
+
+        public void sqlTest(string conStr)
+        {
+            DbFactory Df = new DbFactory(conStr);
+            DbHelperBase db = Df.OracleHelper;
+            try
+            {
+                DataSet ds = db.GetDataSet("select * from bimcc_lu");
+            }
+            catch (Exception ex)
+            {
+                return;
             }
         }
     }

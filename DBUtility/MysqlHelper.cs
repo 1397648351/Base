@@ -12,11 +12,6 @@
  * Copyright @ Njbosa 2018. All rights reserved.
 ************************************************************************/
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
 using System.Data.Common;
 
@@ -27,9 +22,9 @@ namespace DBUtility
         public MysqlHelper(string connStr)
             : base(connStr)
         { }
-        MySqlConnection _DBConnectionObj;
-        MySqlCommand _DbCommandObj;
-        MySqlDataAdapter _DbDataAdapterObj;
+        private MySqlConnection _DBConnectionObj;
+        private MySqlCommand _DbCommandObj;
+        private MySqlDataAdapter _DbDataAdapterObj;
 
         protected override DbConnection DBConnectionObj
         {

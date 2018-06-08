@@ -10,6 +10,9 @@ namespace Test
     {
         static void Main(string[] args)
         {
+            Actives act = new Actives();
+            act.Wr("cao");
+            Console.ReadLine();
         }
     }
 }

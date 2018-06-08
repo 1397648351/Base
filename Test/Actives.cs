@@ -22,6 +22,9 @@ namespace Test
 {
     public class Actives
     {
-
+        public void Wr(string str)
+        {
+            Console.WriteLine(str);
+        }
     }
 }

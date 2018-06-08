@@ -13,11 +13,7 @@
 ************************************************************************/
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ORMAttributes
 {
@@ -31,14 +27,11 @@ namespace ORMAttributes
         public static string GetTableName(Type type)
         {
             string tableName = string.Empty;
-            object[] attributes = type.GetCustomAttributes(false);
-            foreach (var attr in attributes)
+            object[] attributes = type.GetCustomAttributes(typeof(TableAttribute), false);
+            if (attributes.Length > 0)
             {
-                if (attr is TableAttribute)
-                {
-                    TableAttribute tableAttribute = attr as TableAttribute;
-                    tableName = tableAttribute.Value;
-                }
+                TableAttribute tableAttribute = attributes[0] as TableAttribute;
+                tableName = tableAttribute.Value;
             }
             if (string.IsNullOrEmpty(tableName))
             {
@@ -55,14 +48,11 @@ namespace ORMAttributes
         public static string GetColumnName(PropertyInfo property)
         {
             string columnName = string.Empty;
-            object[] attributes = property.GetCustomAttributes(false);
-            foreach (var attr in attributes)
+            object[] attributes = property.GetCustomAttributes(typeof(ColumnAttribute), false);
+            if (attributes.Length > 0)
             {
-                if (attr is ColumnAttribute)
-                {
-                    ColumnAttribute columnAttr = attr as ColumnAttribute;
-                    columnName = columnAttr.Value;
-                }
+                ColumnAttribute columnAttr = attributes[0] as ColumnAttribute;
+                columnName = columnAttr.Value;
             }
             if (string.IsNullOrEmpty(columnName))
             {

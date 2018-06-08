@@ -17,6 +17,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ORMAttributes;
+using System.Reflection;
+using Models;
 
 namespace Test
 {
@@ -24,7 +27,12 @@ namespace Test
     {
         public void Wr(string str)
         {
-            Console.WriteLine(str);
+            PropertyInfo[] properties = typeof(User).GetProperties();
+            foreach (PropertyInfo property in properties)
+            {
+                string name = ORMAttributes.AttributeProcess.GetColumnName(property);
+                Console.WriteLine(property.Name + ": " + name);
+            }
         }
     }
 }

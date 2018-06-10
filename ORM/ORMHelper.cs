@@ -26,6 +26,7 @@ namespace ORM
     public class ORMHelper
     {
         private const string Str_Ex = "ORM异常";
+
         public List<T> ExecuteLsit<T>(string sql)
         {
             DbDataReader reader = null;
@@ -78,10 +79,8 @@ namespace ORM
 
         private bool ReaderExists(DbDataReader dr, string columnName)
         {
-
             dr.GetSchemaTable().DefaultView.RowFilter = "ColumnName= '" + columnName + "'";
             return (dr.GetSchemaTable().DefaultView.Count > 0);
-
         }
     }
 }

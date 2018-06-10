@@ -43,6 +43,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\DBUtility\DBUtility.csproj">
+      <Project>{d38848f6-68be-428d-9989-cab826a4c578}</Project>
+      <Name>DBUtility</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ORMAttributes\ORMAttributes.csproj">
       <Project>{ec6cffbe-e483-4dfa-9d7d-fc600c8a3aab}</Project>
       <Name>ORMAttributes</Name>

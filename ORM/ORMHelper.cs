@@ -20,16 +20,104 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using DBUtility;
 
 namespace ORM
 {
     public class ORMHelper
     {
-        private const string Str_Ex = "ORM异常";
-
-        public List<T> ExecuteLsit<T>(string sql)
+        private DbHelperBase DbHelper;
+        public ORMHelper(string connStr, string type = "mysql")
         {
-            DbDataReader reader = null;
+            switch (type.ToLower())
+            {
+                case "oracle":
+                    DbHelper = new OracleHelper(connStr);
+                    break;
+                case "sqlserver":
+                    DbHelper = new SQLHelper(connStr);
+                    break;
+                case "mysql":
+                default:
+                    DbHelper = new MysqlHelper(connStr);
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// 创建子查询SQL
+        /// </summary>
+        /// <returns></returns>
+        public string BuildSql()
+        {
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// 查找单条记录
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="sql">sql指令</param>
+        /// <returns></returns>
+        public T Find<T>(string sql = "")
+        {
+            if (string.IsNullOrWhiteSpace(sql)) sql = this.BuildSql();
+            DbDataReader reader = DbHelper.GetDataReader(sql, System.Data.CommandType.Text);
+            Type type = typeof(T);
+            if (type.IsPrimitive || type == typeof(string) || type == typeof(DateTime) || type.IsEnum)
+            {
+                if (type.IsEnum)
+                {
+                    return (T)Enum.ToObject(type, reader.GetValue(0));
+                }
+                else
+                {
+                    return (T)Convert.ChangeType(reader.GetValue(0), type);
+                }
+            }
+            else
+            {
+                T result = Activator.CreateInstance<T>();
+                PropertyInfo[] properyies = type.GetProperties();
+                string columName;
+                foreach (PropertyInfo property in properyies)
+                {
+                    columName = AttributeProcess.GetColumnName(property);
+                    if (!ReaderExists(reader, columName)) continue;
+                    var value = reader.GetValue(reader.GetOrdinal(columName));
+                    if (property.PropertyType.IsPrimitive && value.Equals(DBNull.Value))
+                        value = Activator.CreateInstance(property.PropertyType);
+                    if (property.PropertyType.IsEnum)
+                        property.SetValue(result, Enum.ToObject(property.PropertyType, value), null);
+                    else
+                        property.SetValue(result, Convert.ChangeType(value, property.PropertyType), null);
+                }
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// 查找记录
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="sql">sql指令</param>
+        /// <returns></returns>
+        public List<T> Select<T>(string sql = "")
+        {
+            if (string.IsNullOrWhiteSpace(sql)) sql = this.BuildSql();
+            return Query<T>(sql);
+        }
+
+        /// <summary>
+        /// 执行查询 返回数据集
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="sql">sql指令</param>
+        /// <returns></returns>
+        public List<T> Query<T>(string sql = "")
+        {
+            if (string.IsNullOrWhiteSpace(sql)) sql = this.BuildSql();
+            DbDataReader reader = DbHelper.GetDataReader(sql, System.Data.CommandType.Text);
             string columName = string.Empty;
             try
             {
@@ -67,14 +155,71 @@ namespace ORM
                             else
                                 property.SetValue(result, Convert.ChangeType(value, property.PropertyType), null);
                         }
+                        list.Add(result);
                     }
                 }
                 return list;
             }
             catch (Exception ex)
             {
-                throw new Exception(Str_Ex, ex);
+                throw new Exception(sql, ex);
             }
+        }
+
+        /// <summary>
+        /// 执行语句
+        /// </summary>
+        /// <param name="sql">sql指令</param>
+        public int Execute(string sql)
+        {
+            try
+            {
+                return DbHelper.ExecNonQuery(sql, System.Data.CommandType.Text);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(sql, ex);
+            }
+        }
+
+        /// <summary>
+        /// 批处理执行SQL语句
+        /// </summary>
+        /// <param name="sqlList">SQL批处理指令</param>
+        /// <returns>bool</returns>
+        public bool BatchQuery(List<string> sqlList)
+        {
+            this.StartTrans();
+            int i = 0;
+            try
+            {
+                for (i = 0; i < sqlList.Count; i++)
+                {
+                    this.Execute(sqlList[i]);
+                }
+                this.Commit();
+            }
+            catch
+            {
+                this.Rollback();
+                throw;
+            }
+            return true;
+        }
+
+        public void StartTrans()
+        {
+            DbHelper.TransStart();
+        }
+
+        public void Commit()
+        {
+            DbHelper.TransCommit();
+        }
+
+        public void Rollback()
+        {
+            DbHelper.TransRollback();
         }
 
         private bool ReaderExists(DbDataReader dr, string columnName)

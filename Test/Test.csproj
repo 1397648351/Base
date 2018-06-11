@@ -47,6 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="DB.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DBUtility\DBUtility.csproj">

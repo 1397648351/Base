@@ -72,7 +72,7 @@ namespace DBUtility
         /// <summary>
         /// 给当前DbCommand对象赋值,并且OpenConnection();
         /// </summary>
-        private void SetCommandAndOpenConnect(string sqlText, CommandType cmdType = CommandType.Text, params DbParameter[] param)
+        private void SetCommandAndOpenConnect(string sqlText, CommandType cmdType, params DbParameter[] param)
         {
             //按说赋值Connection,CommandType,是不用多次赋值的
             DbCommandObj.CommandType = cmdType;
@@ -89,7 +89,7 @@ namespace DBUtility
         /// <summary>
         /// 执行一条指定命令类型(SQL语句或存储过程等)的SQL语句,返回所影响行数
         /// </summary>
-        public int ExecNonQuery(string sqlText, CommandType cmdType = CommandType.Text, params DbParameter[] param)
+        public int ExecNonQuery(string sqlText, CommandType cmdType, params DbParameter[] param)
         {
             try
             {
@@ -109,7 +109,7 @@ namespace DBUtility
         /// <summary>
         /// 获得首行首列
         /// </summary>
-        public object GetScalar(string sqlText, CommandType cmdType = CommandType.Text, params DbParameter[] param)
+        public object GetScalar(string sqlText, CommandType cmdType, params DbParameter[] param)
         {
             try
             {
@@ -128,7 +128,7 @@ namespace DBUtility
         /// <summary>
         /// 执行一条SQL语句返回DataSet对象
         /// </summary>
-        public DataSet GetDataSet(string sqlText, CommandType cmdType = CommandType.Text, params DbParameter[] param)
+        public DataSet GetDataSet(string sqlText, CommandType cmdType, params DbParameter[] param)
         {
             try
             {

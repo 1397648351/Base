@@ -27,6 +27,9 @@ namespace ORM
     public class ORMHelper
     {
         private DbHelperBase DbHelper;
+
+        protected Dictionary<string, object> options;
+
         public ORMHelper(string connStr, string type = "mysql")
         {
             switch (type.ToLower())
@@ -41,6 +44,30 @@ namespace ORM
                 default:
                     DbHelper = new MysqlHelper(connStr);
                     break;
+            }
+            options = new Dictionary<string, object>();
+        }
+
+        public ORMHelper Where(object field, string op = null, string condition = null)//查询逻辑 and or xor
+        {
+            this.ParseWhereExp("AND", field, op, condition);
+            return this;
+        }
+
+        public ORMHelper WhereOr()
+        {
+            return this;
+        }
+
+        protected void ParseWhereExp(string logic, object field, string op, string condition)
+        {
+            if (field is string)
+            {
+
+            }
+            else if (field is Dictionary<string, string>)
+            {
+
             }
         }
 
@@ -207,25 +234,47 @@ namespace ORM
             return true;
         }
 
+        /// <summary>
+        /// 启动事务
+        /// </summary>
         public void StartTrans()
         {
             DbHelper.TransStart();
         }
 
+        /// <summary>
+        /// 用于非自动提交状态下面的查询提交
+        /// </summary>
         public void Commit()
         {
             DbHelper.TransCommit();
         }
 
+        /// <summary>
+        /// 事务回滚
+        /// </summary>
         public void Rollback()
         {
             DbHelper.TransRollback();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="dr"></param>
+        /// <param name="columnName"></param>
+        /// <returns></returns>
         private bool ReaderExists(DbDataReader dr, string columnName)
         {
             dr.GetSchemaTable().DefaultView.RowFilter = "ColumnName= '" + columnName + "'";
             return (dr.GetSchemaTable().DefaultView.Count > 0);
         }
+    }
+
+    public class Where
+    {
+        public string filed { get; set; }
+        public string logic { get; set; }
+        public string condition { get; set; }
     }
 }

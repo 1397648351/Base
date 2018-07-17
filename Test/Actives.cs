@@ -37,18 +37,18 @@ namespace Test
             }
         }
 
-        public void sqlTest(string conStr)
-        {
-            DbFactory Df = new DbFactory(conStr);
-            DbHelperBase db = Df.OracleHelper;
-            try
-            {
-                DataSet ds = db.GetDataSet("select * from bimcc_lu");
-            }
-            catch (Exception ex)
-            {
-                return;
-            }
-        }
+        //public void sqlTest(string conStr)
+        //{
+        //    DbFactory Df = new DbFactory(conStr);
+        //    DbHelperBase db = Df.OracleHelper;
+        //    try
+        //    {
+        //        DataSet ds = db.GetDataSet("select * from bimcc_lu");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return;
+        //    }
+        //}
     }
 }

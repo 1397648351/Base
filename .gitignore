@@ -1,0 +1,8 @@
+*/bin/
+*/obj/
+*.suo
+.idea
+.vs/
+Test
+.svn
+.vs/

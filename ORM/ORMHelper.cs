@@ -19,7 +19,6 @@ using System.Data.Common;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
 using DBUtility;
 
 namespace ORM
@@ -88,7 +87,7 @@ namespace ORM
         /// <returns></returns>
         public T Find<T>(string sql = "")
         {
-            if (string.IsNullOrWhiteSpace(sql)) sql = this.BuildSql();
+            if (string.IsNullOrEmpty(sql)) sql = this.BuildSql();
             DbDataReader reader = DbHelper.GetDataReader(sql, System.Data.CommandType.Text);
             Type type = typeof(T);
             if (type.IsPrimitive || type == typeof(string) || type == typeof(DateTime) || type.IsEnum)
@@ -131,7 +130,7 @@ namespace ORM
         /// <returns></returns>
         public List<T> Select<T>(string sql = "")
         {
-            if (string.IsNullOrWhiteSpace(sql)) sql = this.BuildSql();
+            if (string.IsNullOrEmpty(sql)) sql = this.BuildSql();
             return Query<T>(sql);
         }
 
@@ -143,7 +142,7 @@ namespace ORM
         /// <returns></returns>
         public List<T> Query<T>(string sql = "")
         {
-            if (string.IsNullOrWhiteSpace(sql)) sql = this.BuildSql();
+            if (string.IsNullOrEmpty(sql)) sql = this.BuildSql();
             DbDataReader reader = DbHelper.GetDataReader(sql, System.Data.CommandType.Text);
             string columName = string.Empty;
             try

@@ -10,7 +10,7 @@
 *************************************************/
 
 using System.Data.Common;
-using Oracle.ManagedDataAccess.Client;
+using Oracle.DataAccess.Client;
 
 namespace DBUtility
 {

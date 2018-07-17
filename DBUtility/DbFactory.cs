@@ -9,12 +9,6 @@
  * 更新时间 ：2018/6/9 0:35:28 
 *************************************************/
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace DBUtility
 {
     public class DbFactory

@@ -26,8 +26,9 @@ namespace ORM
     public class ORMHelper
     {
         private DbHelperBase DbHelper;
-
-        protected Dictionary<string, object> options;
+        //private Dictionary<string, object> options;
+        //private Queue<WhereParam> conditions;
+        //private string TableName { get; set; }
 
         public ORMHelper()
         {
@@ -68,7 +69,9 @@ namespace ORM
                 default:
                     throw new Exception("不支持的数据库类型");
             }
-            options = new Dictionary<string, object>();
+            //options = new Dictionary<string, object>();
+            //conditions = new Queue<WhereParam>();
+            //TableName = AttributeProcess.GetTableName(typeof(T));
         }
 
         public ORMHelper(string connStr, string type = "mysql")
@@ -83,43 +86,74 @@ namespace ORM
                     break;
                 case "mysql":
                 default:
-                    DbHelper = new MysqlHelper(connStr);
-                    break;
+                    throw new Exception("不支持的数据库类型");
             }
-            options = new Dictionary<string, object>();
+            //options = new Dictionary<string, object>();
+            //conditions = new Queue<WhereParam>();
+            //TableName = AttributeProcess.GetTableName(typeof(T));
         }
+        #region ORM未完成
+        //public ORMHelper<T> Where(object field, string op = null, string condition = null)//查询逻辑 and or xor
+        //{
+        //    this.ParseWhereExp("AND", field, op, condition);
+        //    return this;
+        //}
 
-        public ORMHelper Where(object field, string op = null, string condition = null)//查询逻辑 and or xor
-        {
-            this.ParseWhereExp("AND", field, op, condition);
-            return this;
-        }
+        //public ORMHelper<T> WhereOr(object field, string op = null, string condition = null)
+        //{
+        //    this.ParseWhereExp("OR", field, op, condition);
+        //    return this;
+        //}
 
-        public ORMHelper WhereOr()
-        {
-            return this;
-        }
+        //protected void ParseWhereExp(string logic, object field, string op, string condition)
+        //{
+        //    if (field is string)
+        //    {
+        //        WhereParam wp = new WhereParam
+        //        {
+        //            logic = logic,
+        //            filed = field.ToString(),
+        //            op = op,
+        //            condition = condition
+        //        };
+        //        conditions.Enqueue(wp);
+        //    }
+        //    else if (field is Dictionary<string, string>)
+        //    {
+        //        foreach (var item in (Dictionary<string, string>)field)
+        //        {
+        //            WhereParam wp = new WhereParam
+        //            {
+        //                logic = logic,
+        //                filed = item.Key,
+        //                op = "=",
+        //                condition = item.Value
+        //            };
+        //            conditions.Enqueue(wp);
+        //        }
+        //    }
+        //}
 
-        protected void ParseWhereExp(string logic, object field, string op, string condition)
-        {
-            if (field is string)
-            {
-
-            }
-            else if (field is Dictionary<string, string>)
-            {
-
-            }
-        }
-
-        /// <summary>
-        /// 创建子查询SQL
-        /// </summary>
-        /// <returns></returns>
-        public string BuildSql()
-        {
-            return string.Empty;
-        }
+        ///// <summary>
+        ///// 创建子查询SQL
+        ///// </summary>
+        ///// <returns></returns>
+        //public string BuildSql()
+        //{
+        //    string sql = string.Empty,
+        //        str_fileds = string.Empty,
+        //        str_where = string.Empty;
+        //    while (conditions.Count > 0)
+        //    {
+        //        WhereParam wp = conditions.Dequeue();
+        //        if (string.IsNullOrEmpty(str_where))
+        //        {
+        //            str_where = string.Format("where {0}{1}{2}",wp.filed,wp.logic);
+        //        }
+        //    }
+        //    return sql;
+        //}
+        #endregion
 
         /// <summary>
         /// 查找单条记录
@@ -127,40 +161,51 @@ namespace ORM
         /// <typeparam name="T"></typeparam>
         /// <param name="sql">sql指令</param>
         /// <returns></returns>
-        public T Find<T>(string sql = "")
+        public T Find<T>(string sql)
         {
-            if (string.IsNullOrEmpty(sql)) sql = this.BuildSql();
+            //if (string.IsNullOrEmpty(sql)) sql = this.BuildSql();
             DbDataReader reader = DbHelper.GetDataReader(sql);
             Type type = typeof(T);
-            if (type.IsPrimitive || type == typeof(string) || type == typeof(DateTime) || type.IsEnum)
+            try
             {
-                if (type.IsEnum)
+                if (type.IsPrimitive || type == typeof(string) || type == typeof(DateTime) || type.IsEnum)
                 {
-                    return (T)Enum.ToObject(type, reader.GetValue(0));
+                    if (type.IsEnum)
+                    {
+                        return (T)Enum.ToObject(type, reader.GetValue(0));
+                    }
+                    else
+                    {
+                        return (T)Convert.ChangeType(reader.GetValue(0), type);
+                    }
                 }
                 else
                 {
-                    return (T)Convert.ChangeType(reader.GetValue(0), type);
+                    T result = Activator.CreateInstance<T>();
+                    PropertyInfo[] properyies = type.GetProperties();
+                    string columName;
+                    foreach (PropertyInfo property in properyies)
+                    {
+                        columName = AttributeProcess.GetColumnName(property);
+                        if (!ReaderExists(reader, columName)) continue;
+                        var value = reader.GetValue(reader.GetOrdinal(columName));
+                        if (property.PropertyType.IsPrimitive && value.Equals(DBNull.Value))
+                            value = Activator.CreateInstance(property.PropertyType);
+                        if (property.PropertyType.IsEnum)
+                            property.SetValue(result, Enum.ToObject(property.PropertyType, value), null);
+                        else
+                            property.SetValue(result, Convert.ChangeType(value, property.PropertyType), null);
+                    }
+                    return result;
                 }
             }
-            else
+            catch(Exception ex)
             {
-                T result = Activator.CreateInstance<T>();
-                PropertyInfo[] properyies = type.GetProperties();
-                string columName;
-                foreach (PropertyInfo property in properyies)
-                {
-                    columName = AttributeProcess.GetColumnName(property);
-                    if (!ReaderExists(reader, columName)) continue;
-                    var value = reader.GetValue(reader.GetOrdinal(columName));
-                    if (property.PropertyType.IsPrimitive && value.Equals(DBNull.Value))
-                        value = Activator.CreateInstance(property.PropertyType);
-                    if (property.PropertyType.IsEnum)
-                        property.SetValue(result, Enum.ToObject(property.PropertyType, value), null);
-                    else
-                        property.SetValue(result, Convert.ChangeType(value, property.PropertyType), null);
-                }
-                return result;
+                throw new Exception(sql, ex);
+            }
+            finally
+            {
+                reader.Close();
             }
         }
 
@@ -170,9 +215,9 @@ namespace ORM
         /// <typeparam name="T"></typeparam>
         /// <param name="sql">sql指令</param>
         /// <returns></returns>
-        public List<T> Select<T>(string sql = "")
+        public List<T> Select<T>(string sql)
         {
-            if (string.IsNullOrEmpty(sql)) sql = this.BuildSql();
+            //if (string.IsNullOrEmpty(sql)) sql = this.BuildSql();
             return Query<T>(sql);
         }
 
@@ -182,9 +227,9 @@ namespace ORM
         /// <typeparam name="T"></typeparam>
         /// <param name="sql">sql指令</param>
         /// <returns></returns>
-        public List<T> Query<T>(string sql = "")
+        public List<T> Query<T>(string sql)
         {
-            if (string.IsNullOrEmpty(sql)) sql = this.BuildSql();
+            //if (string.IsNullOrEmpty(sql)) sql = this.BuildSql();
             DbDataReader reader = DbHelper.GetDataReader(sql);
             string columName = string.Empty;
             try
@@ -231,6 +276,10 @@ namespace ORM
             catch (Exception ex)
             {
                 throw new Exception(sql, ex);
+            }
+            finally
+            {
+                reader.Close();
             }
         }
 
@@ -304,10 +353,11 @@ namespace ORM
         }
     }
 
-    public class Where
-    {
-        public string filed { get; set; }
-        public string logic { get; set; }
-        public string condition { get; set; }
-    }
+    //public class WhereParam
+    //{
+    //    public string filed { get; set; }
+    //    public string logic { get; set; }
+    //    public string op { get; set; }
+    //    public string condition { get; set; }
+    //}
 }

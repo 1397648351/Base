@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<configuration>
+  <type value="mysql"/>
+  <hostname value="47.98.210.244" />
+  <username value="root" />
+  <password value="njbosa" />
+  <database value="base" />
+  <hostport value="3306" />
+  <charset value="utf8" />
+  <params>
+    <SslMode value="none"/>
+  </params>
+</configuration>
+
+
+<!--<type value="oracle"/>
+<hostname value="121.43.104.82/orcl" />
+<username value="njbosa" />
+<password value="njbosa" />-->

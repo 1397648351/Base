@@ -29,6 +29,48 @@ namespace ORM
 
         protected Dictionary<string, object> options;
 
+        public ORMHelper()
+        {
+            DBConfig dbConfig = DBConfig.Instance;
+            string connStr = string.Empty;
+            switch (dbConfig.Type.ToLower())
+            {
+                case "oracle":
+                    connStr = string.Format("User ID={0};Password={1};Data Source={2};",
+                        dbConfig.Username,
+                        dbConfig.Password,
+                        dbConfig.HostName);
+                    foreach (var item in dbConfig.Params)
+                    {
+                        string value = item.Value;
+                        if (string.IsNullOrEmpty(value))
+                            value = "none";
+                        connStr += string.Format("{0}={1};", item.Key, value);
+                    }
+                    DbHelper = new OracleHelper(connStr);
+                    break;
+                case "mysql":
+                    connStr = string.Format("server={0};User Id=root;password=njbosa;Database=bifms;Charset=utf8;",
+                        dbConfig.HostName,
+                        dbConfig.Username,
+                        dbConfig.Password,
+                        dbConfig.DataBase,
+                        dbConfig.Charset);
+                    foreach (var item in dbConfig.Params)
+                    {
+                        string value = item.Value;
+                        if (string.IsNullOrEmpty(value))
+                            value = "none";
+                        connStr += string.Format("{0}={1};", item.Key, value);
+                    }
+                    DbHelper = new SQLHelper(connStr);
+                    break;
+                default:
+                    throw new Exception("不支持的数据库类型");
+            }
+            options = new Dictionary<string, object>();
+        }
+
         public ORMHelper(string connStr, string type = "mysql")
         {
             switch (type.ToLower())
@@ -88,7 +130,7 @@ namespace ORM
         public T Find<T>(string sql = "")
         {
             if (string.IsNullOrEmpty(sql)) sql = this.BuildSql();
-            DbDataReader reader = DbHelper.GetDataReader(sql, System.Data.CommandType.Text);
+            DbDataReader reader = DbHelper.GetDataReader(sql);
             Type type = typeof(T);
             if (type.IsPrimitive || type == typeof(string) || type == typeof(DateTime) || type.IsEnum)
             {
@@ -143,7 +185,7 @@ namespace ORM
         public List<T> Query<T>(string sql = "")
         {
             if (string.IsNullOrEmpty(sql)) sql = this.BuildSql();
-            DbDataReader reader = DbHelper.GetDataReader(sql, System.Data.CommandType.Text);
+            DbDataReader reader = DbHelper.GetDataReader(sql);
             string columName = string.Empty;
             try
             {
@@ -200,7 +242,7 @@ namespace ORM
         {
             try
             {
-                return DbHelper.ExecNonQuery(sql, System.Data.CommandType.Text);
+                return DbHelper.ExecNonQuery(sql);
             }
             catch (Exception ex)
             {
@@ -215,22 +257,14 @@ namespace ORM
         /// <returns>bool</returns>
         public bool BatchQuery(List<string> sqlList)
         {
-            this.StartTrans();
-            int i = 0;
             try
             {
-                for (i = 0; i < sqlList.Count; i++)
-                {
-                    this.Execute(sqlList[i]);
-                }
-                this.Commit();
+                return DbHelper.BatchQuery(sqlList);
             }
             catch
             {
-                this.Rollback();
                 throw;
             }
-            return true;
         }
 
         /// <summary>

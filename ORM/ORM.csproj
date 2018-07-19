@@ -39,10 +39,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DBConfig.cs" />
     <Compile Include="ORMHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj">
+      <Project>{f481ed17-5984-42d4-9493-a26a53c5d35d}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\DBUtility\DBUtility.csproj">
       <Project>{d38848f6-68be-428d-9989-cab826a4c578}</Project>
       <Name>DBUtility</Name>
@@ -51,6 +56,11 @@
       <Project>{ec6cffbe-e483-4dfa-9d7d-fc600c8a3aab}</Project>
       <Name>ORMAttributes</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="DB.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -60,8 +60,34 @@ namespace Common
             XmlDocument xmlDoc = new XmlDocument();
             xmlDoc.Load(xmlPath);
             //取到所有的xml结点
-            XmlNodeList nodes = xmlDoc.GetElementsByTagName("*");
+            XmlNodeList nodes = xmlDoc.GetElementsByTagName(nodePath);
             return nodes;
+        }
+
+        /// <summary>
+        /// 取指定的结点的子节点集合
+        /// </summary>
+        /// <param name="xmlPath"></param>
+        /// <param name="nodePath"></param>
+        /// <returns>取指定的结点的集合</returns>
+        public static XmlNodeList SelectChildren(string xmlPath, string nodePath)
+        {
+            //XmlDocument xmlDoc = new XmlDocument();
+            //xmlDoc.Load(xmlPath);
+            //取到所有的xml结点
+            XmlNodeList nodes = Find(xmlPath, nodePath).ChildNodes;
+            return nodes;
+        }
+
+        public static Dictionary<string, string> SelectChildrenAttr(string xmlPath, string nodePath)
+        {
+            Dictionary<string, string> res = new Dictionary<string, string>();
+            XmlNodeList nodes = SelectChildren(xmlPath, nodePath);
+            foreach (XmlElement item in nodes)
+            {
+                res.Add(item.Name, item.Value);
+            }
+            return res;
         }
 
         /// <summary>
@@ -76,6 +102,21 @@ namespace Common
             xmlDoc.Load(xmlPath);
             XmlElement element = (XmlElement)xmlDoc.SelectSingleNode(nodePath);
             string attrValue = element.GetAttribute(attrName);
+            return attrValue;
+        }
+
+        /// <summary>
+        /// 取指定节点内容
+        /// </summary>
+        /// <param name="xmlPath"></param>
+        /// <param name="nodePath"></param>
+        /// <param name="attrName"></param>
+        public static string SelectContent(string xmlPath, string nodePath)
+        {
+            XmlDocument xmlDoc = new XmlDocument();
+            xmlDoc.Load(xmlPath);
+            XmlElement element = (XmlElement)xmlDoc.SelectSingleNode(nodePath);
+            string attrValue = element.InnerText;
             return attrValue;
         }
 

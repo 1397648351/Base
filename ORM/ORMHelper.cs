@@ -50,7 +50,7 @@ namespace ORM
                     DbHelper = new OracleHelper(connStr);
                     break;
                 case "mysql":
-                    connStr = string.Format("server={0};User Id=root;password=njbosa;Database=bifms;Charset=utf8;",
+                    connStr = string.Format("server={0};User Id=root;password=njbosa;Database=bifms;charset=utf8;",
                         dbConfig.HostName,
                         dbConfig.Username,
                         dbConfig.Password,
@@ -63,7 +63,7 @@ namespace ORM
                             value = "none";
                         connStr += string.Format("{0}={1};", item.Key, value);
                     }
-                    DbHelper = new SQLHelper(connStr);
+                    DbHelper = new MysqlHelper(connStr);
                     break;
                 default:
                     throw new Exception("不支持的数据库类型");
